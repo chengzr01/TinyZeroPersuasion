@@ -68,7 +68,7 @@ class RLHFDataset(Dataset):
                  filter_prompts=True,
                  cache_dir='~/.cache/verl/rlhf',
                  chat_template_func=None,
-                 return_raw_chat=False,
+                 return_raw_chat=True,
                  truncation='error'):
         if not isinstance(parquet_files, (List, ListConfig)):
             parquet_files = [parquet_files]
@@ -107,52 +107,13 @@ class RLHFDataset(Dataset):
         tokenizer = self.tokenizer
         prompt_key = self.prompt_key
 
-        # nvm if prompt is too long
-        # self.dataframe = self.dataframe[self.dataframe.apply(lambda doc: len(
-        #     tokenizer.apply_chat_template(doc[prompt_key], add_generation_prompt=True)) <= self.max_prompt_length,
-        #                                                      axis=1)]
-
         print(f'filter dataset len: {len(self.dataframe)}')
 
     def __len__(self):
         return len(self.dataframe)
     
-    # def __getitem__(self, item):
-    #     """
-    #     Note that we also return the raw_input_ids so that it can be combined with other chat template
-    #     """
-    #     row_dict = self.dataframe.iloc[item].to_dict()
-
-    #     chat = row_dict.pop(self.prompt_key)
-
-    #     prompt_with_chat_template = chat[0]['content']
-    #     # prompt_with_chat_template = chat
-
-    #     input_ids, attention_mask = verl_F.tokenize_and_postprocess_data(prompt=prompt_with_chat_template,
-    #                                                                      tokenizer=self.tokenizer,
-    #                                                                      max_length=self.max_prompt_length,
-    #                                                                      pad_token_id=self.tokenizer.pad_token_id,
-    #                                                                      left_pad=True,
-    #                                                                      truncation=self.truncation)
-
-    #     position_ids = compute_position_id_with_mask(attention_mask)
-
-    #     row_dict['input_ids'] = input_ids[0]
-    #     row_dict['attention_mask'] = attention_mask[0]
-    #     row_dict['position_ids'] = position_ids[0]
-
-    #     # encode prompts without chat template
-    #     if self.return_raw_chat:
-    #         row_dict['raw_prompt'] = chat.tolist()
-
-    #     # add index for each prompt
-    #     index = row_dict.get("extra_info", {}).get("index", 0)
-    #     row_dict["index"] = index
-
-    #     return row_dict
-    
     def _build_full_prompt(self, chat_turns):
-        prompt_parts = []
+        parts = []
         for turn in chat_turns:
             role = turn["role"]
             content = turn["content"]
@@ -160,31 +121,36 @@ class RLHFDataset(Dataset):
         return "\n".join(parts)
     
     def __getitem__(self, item):
+        """
+        Note that we also return the raw_input_ids so that it can be combined with other chat template
+        """
         row_dict = self.dataframe.iloc[item].to_dict()
-        
+
         chat = row_dict.pop(self.prompt_key)
+
+        prompt_with_chat_template = self._build_full_prompt(chat)
         
-        full_prompt = self._build_full_prompt(chat)
-        
-        input_ids, attention_mask = verl_F.tokenize_and_postprocess_data(
-            prompt=full_prompt,
-            tokenizer=self.tokenizer,
-            max_length=self.max_prompt_length,
-            pad_token_id=self.tokenizer.pad_token_id,
-            left_pad=True,
-            truncation=self.truncation
-        )
-        
+        print(prompt_with_chat_template)
+
+        input_ids, attention_mask = verl_F.tokenize_and_postprocess_data(prompt=prompt_with_chat_template,
+                                                                         tokenizer=self.tokenizer,
+                                                                         max_length=self.max_prompt_length,
+                                                                         pad_token_id=self.tokenizer.pad_token_id,
+                                                                         left_pad=True,
+                                                                         truncation=self.truncation)
+
         position_ids = compute_position_id_with_mask(attention_mask)
-        
-        position_ids = compute_position_id_with_mask(attention_mask)
+
+        row_dict['input_ids'] = input_ids[0]
+        row_dict['attention_mask'] = attention_mask[0]
+        row_dict['position_ids'] = position_ids[0]
 
         # encode prompts without chat template
         if self.return_raw_chat:
             row_dict['raw_prompt'] = chat.tolist()
 
-        row_dict['input_ids'] = input_ids[0]
-        row_dict['attention_mask'] = attention_mask[0]
-        row_dict['position_ids'] = position_ids[0]
+        # add index for each prompt
+        index = row_dict.get("extra_info", {}).get("index", 0)
+        row_dict["index"] = index
 
         return row_dict

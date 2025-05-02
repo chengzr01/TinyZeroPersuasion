@@ -19,19 +19,24 @@ def extract_belief(example):
             return response["persuadee"].get("response")
     return None
 
+def extract_claim(example):
+    return example["transcript"]["correct_claim"]
+
 def process_data(raw_data: List[Dict], split: str) -> List[Dict]:
     processed = []
     for idx, example in enumerate(raw_data):
         prompt = extract_prompt(example)
-        belief = extract_belief(example)
-        if prompt is not None and belief is not None:
+        claim = extract_claim(example)
+        initial_belief = extract_belief(example)
+        if prompt is not None and initial_belief is not None:
             processed.append({
                 "data_source": "persuasion",
                 "prompt": prompt,
                 "ability": "persuasion",
                 "reward_model": {
                     "style": "model",
-                    "ground_truth": belief
+                    "claim": claim,
+                    "initial_belief": initial_belief,
                 },
                 "extra": {"split": split, "index": idx}
             })
@@ -53,6 +58,7 @@ if __name__ == "__main__":
     test_raw = full_data[args.train_size:args.train_size + args.test_size]
 
     # Process
+    # TODO: construct multi-turn data
     train_data = process_data(train_raw, split='train')
     test_data = process_data(test_raw, split='test')
 
