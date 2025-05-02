@@ -80,7 +80,7 @@ class RewardManager():
             data_source = data_item.non_tensor_batch['data_source']
             compute_score_fn = _select_rm_score_fn(data_source)
 
-            score = compute_score_fn(response=sequences_str, claim=claim, initial_belief=initial_belief)
+            score = compute_score_fn(solution_str=sequences_str, claim=claim, initial_belief=initial_belief)
             reward_tensor[i, valid_response_length - 1] = score
 
             if data_source not in already_print_data_sources:

@@ -1,6 +1,6 @@
 export N_GPUS=1
 export NCCL_P2P_DISABLE=1
-export CUDA_VISIBLE_DEVICES=4
+export CUDA_VISIBLE_DEVICES=1
 export BASE_MODEL=Qwen/Qwen2.5-0.5B
 export DATA_DIR=./data/persuasion
 export ROLLOUT_TP_SIZE=1
