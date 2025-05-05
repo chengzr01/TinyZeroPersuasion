@@ -1,7 +1,10 @@
-export N_GPUS=2
-export BASE_MODEL=meta-llama/Llama-3.2-1B-Instruct
-export DATA_DIR=./data/persuasion_static
-export EXPERIMENT_NAME=persuasion-llama-3.2-1b-static
+export N_GPUS=1
+export NCCL_P2P_DISABLE=1
+export CUDA_VISIBLE_DEVICES=1
+export BASE_MODEL=Qwen/Qwen2.5-0.5B
+export DATA_DIR=./data/persuasion
+export ROLLOUT_TP_SIZE=1
+export EXPERIMENT_NAME=persuasion-qwen2.5-0.5b
 export VLLM_ATTENTION_BACKEND=XFORMERS
 
 python3 -m verl.trainer.main_ppo \
