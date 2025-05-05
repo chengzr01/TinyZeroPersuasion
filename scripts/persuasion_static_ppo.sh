@@ -1,10 +1,10 @@
 export N_GPUS=1
 export NCCL_P2P_DISABLE=1
 export CUDA_VISIBLE_DEVICES=1
-export BASE_MODEL=Qwen/Qwen2.5-0.5B
+export BASE_MODEL=meta-llama/Llama-3.2-3B
 export DATA_DIR=./data/persuasion
 export ROLLOUT_TP_SIZE=1
-export EXPERIMENT_NAME=persuasion-qwen2.5-0.5b
+export EXPERIMENT_NAME=persuasion-llama-3.2-3b
 export VLLM_ATTENTION_BACKEND=XFORMERS
 
 python3 -m verl.trainer.main_ppo \
@@ -12,7 +12,7 @@ data.train_files=$DATA_DIR/train.parquet \
 data.val_files=$DATA_DIR/test.parquet \
 data.train_batch_size=8 \
 data.val_batch_size=128 \
-data.max_prompt_length=1024 \
+data.max_prompt_length=2048 \
 data.max_response_length=512 \
 actor_rollout_ref.model.path=$BASE_MODEL \
 actor_rollout_ref.model.use_remove_padding=True \

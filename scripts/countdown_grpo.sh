@@ -6,7 +6,6 @@ export DATA_DIR=./data/countdown
 export ROLLOUT_TP_SIZE=1
 export EXPERIMENT_NAME=persuasion-qwen2.5-0.5b
 export VLLM_ATTENTION_BACKEND=XFORMERS
-export WANDB_API_KEY=22923d6bf5affee4fd54c98c740d1a74db2cf5ac
 
 python3 -m verl.trainer.main_ppo \
 algorithm.adv_estimator=grpo \
