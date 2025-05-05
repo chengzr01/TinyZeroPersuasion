@@ -73,7 +73,8 @@ class RewardManager():
             sequences = torch.cat((valid_prompt_ids, valid_response_ids))
             sequences_str = self.tokenizer.decode(sequences)
 
-            ground_truth = data_item.non_tensor_batch['reward_model']['ground_truth']
+            claim = data_item.non_tensor_batch['reward_model']['claim']
+            initial_belief = data_item.non_tensor_batch['reward_model']['initial_belief']
 
             # select rm_score
             data_source = data_item.non_tensor_batch['data_source']
