@@ -13,7 +13,10 @@ def extract_response(solution_str):
 def extract_score(response):
     match = re.search(r'<score>(.*?)</score>', response)
     if match:
-        score = float(match.group(1))
+        try:
+            score = float(match.group(1))
+        except (ValueError, TypeError):
+            score = 4
     else:
         score = 4
     return score
